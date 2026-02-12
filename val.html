@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine's Invitation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="pi.jpg">
+<link rel="preload" as="audio" href="val.mp3">
+<style>
+  /* Body & background */
+  body {
+    font-family: 'Pacifico', cursive;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(135deg, #ffe6f0, #ff99cc);
+    background-size: 200% 200%;
+    animation: pulseGradient 12s ease infinite;
+  }
+  @keyframes pulseGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  body::before {
+    content: "";
+    position: absolute;
+    top:0; left:0;
+    width: 100%; height: 100%;
+    background: url('pi.jpg') no-repeat center bottom;
+    background-size: cover;
+    background-attachment: fixed;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    animation: fadeInBg 1s forwards;
+  }
+  @keyframes fadeInBg { to { opacity: 0.25; } }
+
+  /* Floating hearts */
+  .floating {
+    position: absolute;
+    font-size: 20px;
+    animation: float 6s linear infinite;
+    z-index: 1;
+    user-select: none;
+  }
+  @keyframes float {
+    0% { transform: translateY(100vh) scale(0.8); opacity:0.8; }
+    50% { opacity:1; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity:0; }
+  }
+
+  /* Card */
+  .card {
+    background: #fff0f5;
+    padding: 25px 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    z-index: 2;
+  }
+  h1 {
+    color: #e60073;
+    font-size: 1.8em;
+    animation: beat 1s infinite;
+    margin: 0.5em 0;
+  }
+  @keyframes beat { 0%,100%{transform:scale(1);}50%{transform:scale(1.2);} }
+  .question { margin: 15px 0; min-height:1.2em; font-size:1em; }
+  button {
+    background: #ff4d94;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    margin: 10px 5px 0 5px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Pacifico', cursive;
+    transition: transform 0.2s;
+    position: relative;
+    font-size: 1em;
+  }
+  button:hover { background:#ff66b2; transform:scale(1.1); }
+  #yesBtn { animation: pulseBtn 1.5s infinite; }
+  @keyframes pulseBtn { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
+
+  /* Letter animation */
+  #letter {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1s ease;
+    text-align: left;
+    font-size: 1em;
+    line-height: 1.5em;
+  }
+
+  /* Confetti */
+  .confetti {
+    position: absolute;
+    width: 10px; height: 10px;
+    background-color: #ff4d94;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 3;
+    border-radius: 50%;
+  }
+
+  /* Responsive text */
+  @media(max-width: 400px){
+    h1 { font-size: 1.5em; }
+    .question { font-size: 0.95em; }
+    button { font-size: 0.95em; padding: 8px 16px; }
+    #letter { font-size: 0.95em; line-height:1.4em; }
+  }
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop>
+  <source src="val.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<div class="card" id="invitation">
+  <h1>💖 Be My Valentine? 💖</h1>
+  <div class="question" id="question"></div>
+  <button id="yesBtn">Yes 💘</button>
+  <button id="noBtn">No 😢</button>
+</div>
+
+<script>
+const card = document.getElementById('invitation');
+const questionEl = document.getElementById('question');
+const yesBtn = document.getElementById('yesBtn');
+const noBtn = document.getElementById('noBtn');
+const music = document.getElementById('bgMusic');
+const colors = ["#ff4d94", "#ff66b2", "#ff99cc", "#ffb3d9"];
+let noAttempts = 0;
+
+// Play music on first click
+document.body.addEventListener('click', () => { if(music.paused) music.play(); }, { once: true });
+
+// Typing effect for question
+function typeText(el, text, delay=50){
+  el.textContent = '';
+  let i=0;
+  const interval = setInterval(()=>{
+    el.textContent += text[i++];
+    if(i>=text.length) clearInterval(interval);
+  }, delay);
+}
+typeText(questionEl,"Will you be my Valentine? 💖");
+
+// Floating hearts
+for(let i=0;i<30;i++){
+  const heart=document.createElement('div');
+  heart.className='floating';
+  heart.style.left=Math.random()*100+'vw';
+  heart.style.animationDuration=(5+Math.random()*5)+'s';
+  heart.style.fontSize=(10+Math.random()*30)+'px';
+  heart.style.color = colors[Math.floor(Math.random()*colors.length)];
+  heart.innerHTML='💖';
+  document.body.appendChild(heart);
+}
+
+// Heart trail on hover
+function createHeart(x,y){
+  const heart=document.createElement('div');
+  heart.className='floating';
+  heart.style.left=x+'px';
+  heart.style.top=y+'px';
+  heart.style.fontSize='15px';
+  heart.style.animationDuration='2s';
+  heart.style.color = colors[Math.floor(Math.random()*colors.length)];
+  heart.innerHTML='💖';
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),2000);
+}
+document.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('mouseenter', e=>{
+    const rect=e.target.getBoundingClientRect();
+    createHeart(rect.left+rect.width/2, rect.top);
+  });
+});
+
+// Confetti helper
+function triggerConfetti(){
+  for(let i=0;i<100;i++){
+    const confetti=document.createElement('div');
+    confetti.className='confetti';
+    confetti.style.left=Math.random()*window.innerWidth+'px';
+    confetti.style.top=Math.random()*-window.innerHeight+'px';
+    confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+    document.body.appendChild(confetti);
+    let fall = setInterval(()=>{
+      let top=parseFloat(confetti.style.top);
+      if(top>window.innerHeight){ confetti.remove(); clearInterval(fall); return; }
+      confetti.style.top=top+5+'px';
+    },16);
+  }
+}
+
+// YES click → generating → letter
+function yesClick(){
+  card.innerHTML=`<h1>💌 Generating your letter...</h1>`;
+  setTimeout(()=>{
+    card.innerHTML=`
+      <h1>💖 Your Valentine Letter 💖</h1>
+      <div id="letter">
+        <p>Dear Sweetheart,</p>
+        <p>I’m so happy to have you in my life. This Valentine's Day, I want to remind you how much you mean to me. Every moment we share is a treasure, and I can't wait to make more memories together. 💘</p>
+        <p>With all my love,</p>
+        <p><strong>Your Valentine 💖</strong></p>
+      </div>
+    `;
+    const letter=document.getElementById('letter');
+    setTimeout(()=>{
+      letter.style.opacity=1;
+      letter.style.transform='translateY(0)';
+    },50);
+    triggerConfetti();
+  },1500);
+}
+
+// NO click with playful jumps
+function noClick(){
+  noAttempts++;
+  if(noAttempts<3){
+    card.innerHTML=`
+      <h1>Oh, come on! 😘</h1>
+      <p>Do you really mean no? 💖</p>
+      <button id="yesBtn">Yes 💘</button>
+      <button id="noBtn" style="opacity:0.2;position:absolute;top:${Math.random()*50+20}%;left:${Math.random()*50+30}%;transition: all 0.3s ease;">No 😢</button>
+    `;
+    document.getElementById('yesBtn').onclick=yesClick;
+    document.getElementById('noBtn').onclick=noClick;
+  } else {
+    card.innerHTML=`<h1>Oh no 😢</h1><p>Maybe next time…💔</p>`;
+  }
+}
+
+// Initial button listeners
+yesBtn.onclick=yesClick;
+noBtn.onclick=noClick;
+
+</script>
+</body>
+</html>
+
